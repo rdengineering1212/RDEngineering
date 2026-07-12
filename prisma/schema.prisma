@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  message   String
+  service   String?
+  browser   String?
+  ip        String?
+  status    String   @default("unread")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Quote {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String
+  company     String?
+  service     String
+  description String
+  budget      String?
+  timeline    String?
+  browser     String?
+  ip          String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Career {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  position      String
+  experience    String
+  qualification String
+  resumeUrl     String?
+  coverLetter   String?
+  status        String   @default("new")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  content     String
+  imageUrl    String?
+  author      String   @default("RD Engineering")
+  category    String?
+  tags        String[]
+  published   Boolean  @default(false)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  content     String?
+  category    String
+  clientName  String?
+  location    String?
+  date        DateTime?
+  imageUrl    String?
+  images      String[]
+  featured    Boolean  @default(false)
+  status      String   @default("completed")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Gallery {
+  id          String   @id @default(cuid())
+  title       String?
+  description String?
+  imageUrl    String
+  category    String
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  content     String?
+  icon        String?
+  imageUrl    String?
+  benefits    String[]
+  applications String[]
+  process     String[]
+  faq         Json?
+  featured    Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Machinery {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  description  String
+  specifications Json?
+  imageUrl     String?
+  category     String?
+  quantity     Int      @default(1)
+  status       String   @default("operational")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  bio         String?
+  imageUrl    String?
+  email       String?
+  phone       String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  logoUrl   String?
+  industry  String?
+  website   String?
+  featured  Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String?
+  company   String?
+  content   String
+  rating    Int      @default(5)
+  avatarUrl String?
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String?
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  page      String
+  count     Int      @default(0)
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}

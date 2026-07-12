@@ -1,0 +1,254 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;        /* #F8FAFC */
+    --foreground: 216 60% 10%;        /* #0A1628 */
+    --card: 0 0% 100%;                /* #FFFFFF */
+    --card-foreground: 216 60% 10%;   /* #0A1628 */
+    --popover: 0 0% 100%;
+    --popover-foreground: 216 60% 10%;
+    --primary: 216 60% 10%;           /* #0A1628 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 16% 47%;         /* #64748B */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 14% 96%;             /* #F1F5F9 */
+    --muted-foreground: 215 16% 47%;  /* #64748B */
+    --accent: 46 65% 52%;             /* #D4AF37 */
+    --accent-foreground: 216 60% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;            /* #E2E8F0 */
+    --input: 214 32% 91%;
+    --ring: 216 60% 10%;
+    --radius: 0.75rem;
+
+    --font-heading: var(--font-plus-jakarta-sans);
+    --font-body: var(--font-manrope);
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Focus styles */
+  :focus-visible {
+    outline: 2px solid hsl(var(--accent));
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Layout */
+  .section-padding {
+    @apply px-4 py-16 md:px-6 md:py-24 lg:py-32;
+  }
+
+  .container-padding {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Typography */
+  .section-title {
+    @apply text-3xl font-bold text-primary md:text-4xl lg:text-5xl font-heading leading-tight;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto leading-relaxed;
+  }
+
+  /* Color */
+  .gradient-text {
+    @apply bg-gradient-to-r from-accent to-yellow-600 bg-clip-text text-transparent;
+  }
+
+  .gradient-bg {
+    @apply bg-gradient-to-r from-primary via-primary/90 to-primary;
+  }
+
+  /* Cards */
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-lg border border-white/20 shadow-xl;
+  }
+
+  .glass-dark {
+    @apply bg-primary/80 backdrop-blur-lg border border-white/10 shadow-xl;
+  }
+
+  .premium-card {
+    @apply bg-card border border-border/40 rounded-2xl p-8 shadow-sm
+           hover:shadow-lg hover:border-accent/20 hover:-translate-y-1
+           transition-all duration-500 relative overflow-hidden;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-white
+           px-7 py-3.5 font-button text-sm font-semibold shadow-sm
+           transition-all duration-300
+           hover:bg-accent hover:-translate-y-0.5 hover:shadow-md
+           active:translate-y-0
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border-2 border-primary
+           text-primary px-7 py-3.5 font-button text-sm font-semibold
+           transition-all duration-300
+           hover:bg-primary hover:text-white hover:-translate-y-0.5 hover:shadow-md
+           active:translate-y-0;
+  }
+
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-white
+           px-7 py-3.5 font-button text-sm font-semibold
+           transition-all duration-300
+           hover:bg-accent hover:-translate-y-0.5 hover:shadow-md
+           active:translate-y-0;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-accent text-primary
+           px-7 py-3.5 font-button text-sm font-semibold shadow-sm
+           transition-all duration-300
+           hover:brightness-110 hover:-translate-y-0.5 hover:shadow-md
+           active:translate-y-0;
+  }
+
+  /* Scroll Animations */
+  .animate-on-scroll {
+    @apply opacity-0 translate-y-8 transition-all duration-700;
+  }
+  .animate-on-scroll.visible {
+    @apply opacity-100 translate-y-0;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area for mobile notch */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ─── Masonry Grid ───────────────────────────────── */
+.masonry-grid {
+  column-count: 3;
+  column-gap: 1.5rem;
+}
+
+.masonry-grid > * {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .masonry-grid { column-count: 2; }
+}
+
+@media (max-width: 640px) {
+  .masonry-grid { column-count: 1; }
+}
+
+/* ─── Admin Scrollbar ────────────────────────────── */
+.admin-scrollbar::-webkit-scrollbar { width: 5px; }
+.admin-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.admin-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--accent));
+  border-radius: 3px;
+}
+
+/* ─── Toast Customization ────────────────────────── */
+.toast-success {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--accent)) !important;
+  border: 1px solid hsl(var(--accent) / 0.4) !important;
+}
+
+.toast-error {
+  background: hsl(var(--primary)) !important;
+  color: #ef4444 !important;
+  border: 1px solid #ef4444 !important;
+}
+
+/* ─── Loading Shimmer ────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* ─── Floating Animation ─────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ─── Hero Parallax ──────────────────────────────── */
+.hero-parallax {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* ─── Prevent horizontal overflow globally ───────── */
+main,
+section,
+.container-padding {
+  max-width: 100%;
+}
+
+/* ─── Image responsive defaults ─────────────────── */
+.img-responsive {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
