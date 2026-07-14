@@ -80,8 +80,11 @@ export async function POST(req: Request) {
     dbSaved = true;
     console.log(`[Quote API] ✅ Saved to DB. ID: ${quoteId}`);
   } catch (dbErr: any) {
-    console.error(`[Quote API] ❌ DB save failed: ${dbErr?.message || dbErr}`);
-    console.warn("[Quote API] Continuing without DB save. Check DATABASE_URL in your environment.");
+    console.error(`[Quote API] ❌ DB save failed:`, dbErr);
+    return NextResponse.json(
+      { message: "Failed to process your request. Please try again later." },
+      { status: 500 }
+    );
   }
 
   // ── 3. Notifications (run concurrently, await all) ─────────────────────────

@@ -28,61 +28,40 @@ export async function POST(req: Request) {
 
     let careerId = `temp-${Date.now()}`;
 
-    // Try database operations - but don't fail the request if DB is unavailable
-    try {
-      // Rate Limiting: max 5 applications per IP per hour
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-      const ipCount = await prisma.career.count({
-        where: { ip, createdAt: { gte: oneHourAgo } },
-      });
+    // Duplicate Prevention: same email + position within 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const existing = await prisma.career.findFirst({
+      where: {
+        email: validated.email,
+        position: validated.position,
+        createdAt: { gte: fiveMinutesAgo },
+      },
+    });
 
-      if (ipCount >= 5) {
-        return NextResponse.json(
-          { message: "Too many applications. Please try again later." },
-          { status: 429 }
-        );
-      }
-
-      // Duplicate Prevention: same email + position within 5 minutes
-      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-      const existing = await prisma.career.findFirst({
-        where: {
-          email: validated.email,
-          position: validated.position,
-          createdAt: { gte: fiveMinutesAgo },
+    if (existing) {
+      return NextResponse.json(
+        {
+          message:
+            "We already received this application. Please wait a few minutes before submitting again.",
         },
-      });
-
-      if (existing) {
-        return NextResponse.json(
-          {
-            message:
-              "We already received this application. Please wait a few minutes before submitting again.",
-          },
-          { status: 409 }
-        );
-      }
-
-      // Save to Database
-      const career = await prisma.career.create({
-        data: {
-          name: validated.name,
-          email: validated.email,
-          phone: validated.phone,
-          position: validated.position,
-          experience: validated.experience,
-          qualification: validated.qualification,
-          coverLetter: validated.coverLetter || null,
-          status: "new",
-        },
-      });
-      careerId = career.id;
-    } catch (dbError: any) {
-      console.error(
-        "[Careers API] Database error (continuing without DB):",
-        dbError?.message || dbError
+        { status: 409 }
       );
     }
+
+    // Save to Database
+    const career = await prisma.career.create({
+      data: {
+        name: validated.name,
+        email: validated.email,
+        phone: validated.phone,
+        position: validated.position,
+        experience: validated.experience,
+        qualification: validated.qualification,
+        coverLetter: validated.coverLetter || null,
+        status: "new",
+      },
+    });
+    careerId = career.id;
 
     // Send notifications asynchronously - don't block the HTTP response
     (async () => {

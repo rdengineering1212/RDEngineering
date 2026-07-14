@@ -78,9 +78,11 @@ export async function POST(req: Request) {
     dbSaved = true;
     console.log(`[Contact API] ✅ Saved to DB. ID: ${contactId}`);
   } catch (dbErr: any) {
-    // DB unavailable — log clearly but don't block the user
-    console.error(`[Contact API] ❌ DB save failed: ${dbErr?.message || dbErr}`);
-    console.warn("[Contact API] Continuing without DB save. Check DATABASE_URL in your environment.");
+    console.error(`[Contact API] ❌ DB save failed:`, dbErr);
+    return NextResponse.json(
+      { message: "Failed to process your request. Please try again later." },
+      { status: 500 }
+    );
   }
 
   // ── 3. Notifications (run concurrently, await all) ─────────────────────────
