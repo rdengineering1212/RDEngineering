@@ -4,20 +4,51 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import NextImage from "next/image";
 import {
   LayoutDashboard, MessageSquare, FileText, Briefcase, Edit3,
-  Image, LogOut, Menu, X, ChevronRight, Users, Settings, BarChart3
+  LogOut, Menu, X, ChevronRight, Users, Settings, BarChart3,
+  Layers, Star, Globe
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { supabase } from "@/lib/supabase";
 
-const sidebarLinks = [
-  { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Contacts", href: "/admin/contacts", icon: MessageSquare },
-  { label: "Quote Requests", href: "/admin/quotes", icon: FileText },
-  { label: "Careers", href: "/admin/careers", icon: Briefcase },
-  { label: "Blog", href: "/admin/blog", icon: Edit3 },
-  { label: "Projects", href: "/admin/projects", icon: BarChart3 },
-  { label: "Gallery", href: "/admin/gallery", icon: Image },
+const NAV_GROUPS = [
+  {
+    label: "Analytics",
+    links: [
+      { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Leads",
+    links: [
+      { label: "Contacts", href: "/admin/contacts", icon: MessageSquare },
+      { label: "Quote Requests", href: "/admin/quotes", icon: FileText },
+    ],
+  },
+  {
+    label: "Content",
+    links: [
+      { label: "Projects", href: "/admin/projects", icon: BarChart3 },
+      { label: "Services", href: "/admin/services", icon: Layers },
+      { label: "Clients", href: "/admin/clients", icon: Users },
+      { label: "Testimonials", href: "/admin/testimonials", icon: Star },
+    ],
+  },
+  {
+    label: "HR & Marketing",
+    links: [
+      { label: "Blog", href: "/admin/blog", icon: Edit3 },
+      { label: "Careers", href: "/admin/careers", icon: Briefcase },
+    ],
+  },
+  {
+    label: "System",
+    links: [
+      { label: "Settings", href: "/admin/settings", icon: Settings },
+    ],
+  },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -31,94 +62,194 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Skip layout for login page
   if (pathname === "/admin/login") return <>{children}</>;
 
-  if (!mounted) return <div className="min-h-screen bg-background" />;
+  if (!mounted) return <div className="min-h-screen" style={{ background: "#080F1C" }} />;
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    toast.success("Logged out");
-    router.push("/admin/login");
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.warn("Supabase signout API failed, clearing local session anyway.", error);
+    } finally {
+      document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      toast.success("Logged out successfully");
+      router.push("/admin/login");
+    }
   };
 
-  return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <AnimatePresence mode="wait">
-        {(sidebarOpen || true) && (
-          <motion.aside
-            initial={false}
-            className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border/40 text-white transform transition-transform duration-300 ${
-              sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-            }`}
-          >
-            <div className="p-6">
-              <Link href="/admin/dashboard" className="flex items-center gap-3 mb-8">
-                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-secondary to-accent flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">RD</span>
-                </div>
-                <div>
-                  <h2 className="font-heading font-bold text-sm">RD Engineering</h2>
-                  <p className="text-xs text-gray-400">Admin Panel</p>
-                </div>
-              </Link>
+  const isActive = (href: string) => pathname === href;
 
-              <nav className="space-y-1">
-                {sidebarLinks.map((link) => {
-                  const isActive = pathname === link.href;
+  return (
+    <div className="dark min-h-screen flex font-body" style={{ background: "var(--admin-bg, #080F1C)", color: "#F0F4FF" }}>
+
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-50 w-60 flex flex-col
+          border-r transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}
+        style={{
+          background: "#0A1628",
+          borderColor: "rgba(255,255,255,0.06)",
+        }}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-5 py-5 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+          <div className="relative h-10 w-10 shrink-0">
+            <NextImage src="/logo.png" alt="RD Logo" fill className="object-contain" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-bold truncate" style={{ color: "#F0F4FF" }}>RD Engineering</p>
+            <p className="text-[10px] font-medium" style={{ color: "#7A8EAD" }}>Admin Panel</p>
+          </div>
+          <button
+            className="ml-auto lg:hidden p-1 rounded transition-colors"
+            style={{ color: "#7A8EAD" }}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-5 admin-scrollbar">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label}>
+              <p className="px-3 mb-1.5 text-[10px] font-bold tracking-widest uppercase" style={{ color: "#4A5D7A" }}>
+                {group.label}
+              </p>
+              <div className="space-y-0.5">
+                {group.links.map((link) => {
+                  const active = isActive(link.href);
                   return (
-                    <Link key={link.href} href={link.href}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all duration-200 ${
-                        isActive ? "bg-accent text-primary font-semibold" : "text-gray-300 hover:bg-white/5 hover:text-white"
-                      }`}
+                    <Link
+                      key={link.href}
+                      href={link.href}
                       onClick={() => setSidebarOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+                      style={active ? {
+                        background: "rgba(212,175,55,0.12)",
+                        color: "#D4AF37",
+                        borderLeft: "2px solid #D4AF37",
+                        paddingLeft: "10px",
+                      } : {
+                        color: "#7A8EAD",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!active) {
+                          (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)";
+                          (e.currentTarget as HTMLElement).style.color = "#B8C5DC";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!active) {
+                          (e.currentTarget as HTMLElement).style.background = "";
+                          (e.currentTarget as HTMLElement).style.color = "#7A8EAD";
+                        }
+                      }}
                     >
-                      <link.icon className="h-4 w-4" />
+                      <link.icon className="h-4 w-4 shrink-0" />
                       {link.label}
                     </Link>
                   );
                 })}
-              </nav>
+              </div>
             </div>
+          ))}
+        </nav>
 
-            <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-border/40 bg-card">
-              <Link href="/" className="flex items-center gap-2 text-sm text-gray-400 hover:text-white mb-4 transition-colors">
-                <ChevronRight className="h-4 w-4" /> View Website
-              </Link>
-              <button onClick={handleLogout}
-                className="flex items-center gap-2 text-sm text-gray-400 hover:text-red-400 transition-colors w-full"
-              >
-                <LogOut className="h-4 w-4" /> Sign Out
-              </button>
-            </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
-
-      {/* Overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
+        {/* Bottom actions */}
+        <div className="px-3 pb-4 space-y-1 border-t pt-4" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+          <Link
+            href="/"
+            target="_blank"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all"
+            style={{ color: "#7A8EAD" }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)";
+              (e.currentTarget as HTMLElement).style.color = "#B8C5DC";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "";
+              (e.currentTarget as HTMLElement).style.color = "#7A8EAD";
+            }}
+          >
+            <Globe className="h-4 w-4 shrink-0" />
+            View Website
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all w-full text-left"
+            style={{ color: "#7A8EAD" }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(239,68,68,0.08)";
+              (e.currentTarget as HTMLElement).style.color = "#EF4444";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "";
+              (e.currentTarget as HTMLElement).style.color = "#7A8EAD";
+            }}
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            Sign Out
+          </button>
+        </div>
+      </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen bg-background">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Bar */}
-        <header className="bg-card border-b border-border/40 px-6 py-4 flex items-center justify-between lg:justify-end sticky top-0 z-30">
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 hover:bg-muted/80 text-white rounded-lg transition-colors">
-            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        <header
+          className="sticky top-0 z-30 flex items-center justify-between px-5 py-3 border-b"
+          style={{
+            background: "#0A1628",
+            borderColor: "rgba(255,255,255,0.06)",
+          }}
+        >
+          {/* Mobile menu toggle */}
+          <button
+            className="lg:hidden p-2 rounded-lg transition-colors"
+            style={{ color: "#7A8EAD" }}
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
           </button>
+
+          {/* Breadcrumb / page name */}
+          <p className="hidden lg:block text-sm font-semibold" style={{ color: "#B8C5DC" }}>
+            {NAV_GROUPS.flatMap(g => g.links).find(l => l.href === pathname)?.label || "Admin"}
+          </p>
+
+          {/* User badge */}
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-300">Admin</span>
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center">
-              <span className="text-white font-bold text-xs">A</span>
+            <span className="text-xs hidden sm:block" style={{ color: "#7A8EAD" }}>rdengineering1212@gmail.com</span>
+            <div
+              className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold"
+              style={{ background: "rgba(212,175,55,0.15)", color: "#D4AF37", border: "1px solid rgba(212,175,55,0.3)" }}
+            >
+              A
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 bg-background">
+        <main className="flex-1 p-6 overflow-y-auto" style={{ background: "#080F1C" }}>
           {children}
         </main>
       </div>
     </div>
   );
 }
-

@@ -52,13 +52,12 @@ export const projectSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters").max(200),
   slug: z.string().min(2, "Slug is required").max(200),
   description: z.string().min(10, "Description must be at least 10 characters").max(500),
-  content: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   clientName: z.string().optional(),
   location: z.string().optional(),
-  date: z.string().optional(),
   imageUrl: z.string().optional(),
   featured: z.boolean().optional(),
+  images: z.array(z.string()).optional(),
 });
 
 export const gallerySchema = z.object({

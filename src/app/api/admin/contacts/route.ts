@@ -10,6 +10,29 @@ export async function GET() {
   }
 }
 
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { id, status } = body;
+
+    if (!id || !status) {
+      return NextResponse.json({ message: "ID and status are required" }, { status: 400 });
+    }
+
+    const contact = await prisma.contact.update({
+      where: { id },
+      data: { status },
+    });
+
+    return NextResponse.json(contact);
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: "Error updating contact status", error: error.message },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   try {
     const id = req.nextUrl.searchParams.get("id");

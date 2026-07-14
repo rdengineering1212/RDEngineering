@@ -10,6 +10,21 @@ export async function GET() {
   }
 }
 
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { id, status } = body;
+    if (!id) return NextResponse.json({ message: "ID required" }, { status: 400 });
+    const quote = await prisma.quote.update({
+      where: { id },
+      data: { status },
+    });
+    return NextResponse.json(quote);
+  } catch {
+    return NextResponse.json({ message: "Error updating quote" }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   try {
     const id = req.nextUrl.searchParams.get("id");

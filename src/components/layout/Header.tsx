@@ -5,35 +5,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Phone, Mail, ChevronDown } from "lucide-react";
+import { Menu, X, Phone, Mail, ChevronDown, Wrench, Shield, Zap, Grid, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
-  {
-    label: "Services",
-    href: "/services",
-    children: [
-      { label: "Steel Fabrication", href: "/services/steel-fabrication" },
-      { label: "Roof Structure & Sheet Work", href: "/services/roof-structure-sheet-work" },
-      { label: "Pipeline Work", href: "/services/pipeline-work" },
-      { label: "Air Line Work", href: "/services/air-line-work" },
-      { label: "Machining Work", href: "/services/machining-work" },
-      { label: "Puff Panel Partition", href: "/services/puff-panel-partition" },
-      { label: "Aluminium Partition", href: "/services/aluminium-partition" },
-      { label: "False Ceiling", href: "/services/false-ceiling" },
-      { label: "Painting Works", href: "/services/painting-works" },
-    ],
-  },
-  { label: "Projects", href: "/projects" },
-  { label: "Clients", href: "/clients" },
-  { label: "Contact", href: "/contact" },
-];
-
-const darkHeroPages = [
-  "/", "/about", "/services", "/projects", "/contact", "/quote",
-  "/clients", "/faq", "/machinery", "/blog", "/team", "/careers",
+// Fallback services in case DB is loading or empty
+const fallbackServices = [
+  { title: "Steel Fabrication", slug: "steel-fabrication", description: "Custom steel structures and industrial frameworks." },
+  { title: "Roof Structure & Sheet Work", slug: "roof-structure-sheet-work", description: "Complete metal roofing and PEB solutions." },
+  { title: "Pipeline Work", slug: "pipeline-work", description: "Process piping, water lines, and drainage." },
+  { title: "Air Line Work", slug: "air-line-work", description: "Compressed air distribution GI networks." },
+  { title: "Machining Work", slug: "machining-work", description: "CNC & manual precision parts machining." },
+  { title: "Puff Panel Partition", slug: "puff-panel-partition", description: "Clean room insulation partitioning systems." },
 ];
 
 export default function Header() {
@@ -41,35 +23,57 @@ export default function Header() {
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [services, setServices] = useState<any[]>([]);
+  const [settings, setSettings] = useState<any>({
+    companyName: "RD Engineering",
+    companyPhone: "8883389766",
+    companyEmail: "rdengineering1212@gmail.com",
+    companyWhatsapp: "918883389766",
+  });
 
   useEffect(() => {
     setMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
+
+    // Fetch site configurations and services
+    Promise.all([
+      fetch("/api/settings").then((res) => res.json()).catch(() => null),
+      fetch("/api/services").then((res) => res.json()).catch(() => null),
+    ]).then(([settingsData, servicesData]) => {
+      if (settingsData) setSettings(settingsData);
+      if (Array.isArray(servicesData) && servicesData.length > 0) {
+        setServices(servicesData);
+      } else {
+        setServices(fallbackServices);
+      }
+    });
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setIsOpen(false);
+    setMegaMenuOpen(false);
   }, [pathname]);
+
+  const hasDarkHero = [
+    "/", "/about", "/services", "/projects", "/contact", "/quote",
+    "/clients", "/faq", "/machinery", "/blog", "/team", "/careers",
+  ].some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));
+
+  const isTransparent = mounted && hasDarkHero && !scrolled;
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
   };
 
-  // Determine if we're on a page that uses a dark hero banner and haven't scrolled down yet
-  const hasDarkHero = darkHeroPages.some((p) =>
-    p === "/" ? pathname === "/" : pathname.startsWith(p)
-  );
-  
-  // Safe transparent state: only allow transparency once mounted to avoid SSR mismatch
-  const isTransparent = mounted && hasDarkHero && !scrolled;
+  if (pathname?.startsWith("/admin")) return null;
 
   return (
     <>
@@ -78,66 +82,40 @@ export default function Header() {
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
           isTransparent
             ? "bg-transparent backdrop-blur-[2px]"
-            : "bg-white backdrop-blur-md border-b border-border/30 shadow-md"
+            : "bg-[#0A1628]/95 backdrop-blur-md border-b border-white/5 shadow-lg"
         )}
-        style={
-          isTransparent
-            ? {
-                background:
-                  "linear-gradient(to bottom, rgba(8,15,28,0.7) 0%, rgba(8,15,28,0.15) 70%, transparent 100%)",
-              }
-            : undefined
-        }
       >
-        {/* Top contact bar — only visible when not scrolled */}
+        {/* Top Info Bar */}
         <div
           className={cn(
-            "hidden lg:block transition-all duration-300 overflow-hidden",
-            scrolled ? "h-0 opacity-0" : "h-auto opacity-100",
-            isTransparent ? "border-b border-white/10" : "border-b border-border/30 bg-muted/80"
+            "hidden lg:block transition-all duration-300 overflow-hidden border-b",
+            scrolled ? "h-0 opacity-0 py-0" : "h-auto opacity-100 py-2.5",
+            isTransparent ? "border-white/10" : "border-white/5"
           )}
         >
-          <div className="container-padding flex items-center justify-between py-2">
-            <div className="flex items-center gap-6 text-sm">
-              <a
-                href="tel:+918883389766"
-                className={cn(
-                  "flex items-center gap-2 transition-colors",
-                  isTransparent ? "text-white/80 hover:text-accent" : "text-muted-foreground hover:text-accent"
-                )}
-              >
+          <div className="container-padding flex items-center justify-between">
+            <div className="flex items-center gap-6 text-xs font-medium text-gray-300">
+              <a href={`tel:+${settings.companyPhone}`} className="flex items-center gap-2 hover:text-accent transition-colors">
                 <Phone className="h-3.5 w-3.5 text-accent" />
-                +91 8883389766
+                +{settings.companyPhone}
               </a>
-              <a
-                href="mailto:rdengineering1212@gmail.com"
-                className={cn(
-                  "flex items-center gap-2 transition-colors",
-                  isTransparent ? "text-white/80 hover:text-accent" : "text-muted-foreground hover:text-accent"
-                )}
-              >
+              <a href={`mailto:${settings.companyEmail}`} className="flex items-center gap-2 hover:text-accent transition-colors">
                 <Mail className="h-3.5 w-3.5 text-accent" />
-                rdengineering1212@gmail.com
+                {settings.companyEmail}
               </a>
             </div>
-            <Link
-              href="/quote"
-              className={cn(
-                "text-sm font-semibold transition-colors",
-                isTransparent ? "text-accent hover:text-white" : "text-primary hover:text-accent"
-              )}
-            >
-              Request a Quote →
+            <Link href="/quote" className="text-xs font-semibold text-accent hover:text-white transition-colors">
+              Request an Industrial Quote →
             </Link>
           </div>
         </div>
 
-        {/* Main Nav */}
-        <nav className="container-padding">
+        {/* Navigation Bar */}
+        <nav className="container-padding relative">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
-              <div className="relative h-8 w-8 sm:h-10 sm:w-10 shrink-0">
+            {/* Logo Brand */}
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative h-12 w-12 shrink-0 group-hover:scale-105 transition-transform">
                 <Image
                   src="/logo.png"
                   alt="RD Engineering Logo"
@@ -147,83 +125,114 @@ export default function Header() {
                 />
               </div>
               <div>
-                <p className={cn(
-                  "text-sm sm:text-base font-heading font-bold leading-tight transition-colors duration-300 whitespace-nowrap",
-                  isTransparent ? "text-white" : "text-primary"
-                )}>
-                  RD Engineering
+                <p className="text-base font-heading font-black text-white leading-tight tracking-tight uppercase">
+                  {settings.companyName}
                 </p>
-                <p className={cn(
-                  "text-[8px] sm:text-[10px] tracking-wider uppercase transition-colors duration-300 whitespace-nowrap",
-                  isTransparent ? "text-white/50" : "text-muted-foreground",
-                  scrolled && "hidden"
-                )}>
-                  Industrial Engineering
+                <p className="text-[9px] tracking-widest uppercase text-gray-400 font-medium">
+                  INDUSTRIAL ENGINEERING
                 </p>
               </div>
             </Link>
 
-            {/* Desktop Nav */}
-            <div className="hidden lg:flex items-center gap-0.5">
-              {navLinks.map((link) => (
-                <div
-                  key={link.href}
-                  className="relative"
-                  onMouseEnter={() => link.children && setActiveDropdown(link.label)}
-                  onMouseLeave={() => setActiveDropdown(null)}
-                >
-                  <Link
-                    href={link.href}
-                    className={cn(
-                      "flex items-center gap-1 px-3.5 py-2 text-sm font-semibold rounded-lg transition-all duration-300",
-                      isActive(link.href)
-                        ? isTransparent
-                          ? "text-accent bg-white/10"
-                          : "text-accent bg-accent/10"
-                        : isTransparent
-                        ? "text-white/90 hover:text-white hover:bg-white/10"
-                        : "text-[#0F172A] hover:text-accent hover:bg-muted/80",
-                      activeDropdown === link.label && (isTransparent ? "text-white" : "text-accent")
-                    )}
-                  >
-                    {link.label}
-                    {link.children && (
-                      <ChevronDown
-                        className={cn(
-                          "h-3.5 w-3.5 transition-transform duration-300",
-                          activeDropdown === link.label && "rotate-180"
-                        )}
-                      />
-                    )}
-                  </Link>
+            {/* Desktop Menu links */}
+            <div className="hidden lg:flex items-center gap-1">
+              <Link
+                href="/"
+                className={cn(
+                  "px-4 py-2 text-sm font-semibold rounded-lg transition-all",
+                  isActive("/") ? "text-accent bg-white/5" : "text-gray-200 hover:text-accent hover:bg-white/5"
+                )}
+              >
+                Home
+              </Link>
+              <Link
+                href="/about"
+                className={cn(
+                  "px-4 py-2 text-sm font-semibold rounded-lg transition-all",
+                  isActive("/about") ? "text-accent bg-white/5" : "text-gray-200 hover:text-accent hover:bg-white/5"
+                )}
+              >
+                About
+              </Link>
 
-                  {link.children && (
-                    <AnimatePresence>
-                      {activeDropdown === link.label && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 8 }}
-                          transition={{ duration: 0.18 }}
-                          className="absolute top-full left-0 mt-2 w-64 rounded-xl bg-card shadow-2xl border border-border/30 overflow-hidden z-50"
-                        >
-                          <div className="p-2">
-                            {link.children.map((child) => (
-                              <Link
-                                key={child.href}
-                                href={child.href}
-                                className="block px-4 py-2.5 text-sm font-medium text-primary/80 hover:text-accent hover:bg-accent/5 rounded-lg transition-all duration-150"
-                              >
-                                {child.label}
-                              </Link>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+              {/* Mega Dropdown menu for Services */}
+              <div
+                onMouseEnter={() => setMegaMenuOpen(true)}
+                onMouseLeave={() => setMegaMenuOpen(false)}
+              >
+                <Link
+                  href="/services"
+                  className={cn(
+                    "flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-lg transition-all",
+                    isActive("/services") || megaMenuOpen ? "text-accent bg-white/5" : "text-gray-200 hover:text-accent hover:bg-white/5"
                   )}
-                </div>
-              ))}
+                >
+                  Services
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", megaMenuOpen && "rotate-180")} />
+                </Link>
+
+                <AnimatePresence>
+                  {megaMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-4 lg:right-6 xl:left-1/2 xl:-translate-x-1/2 top-full mt-2 w-[720px] max-w-[90vw] bg-[#0A1628] border border-white/5 rounded-2xl shadow-2xl p-6 z-50 grid grid-cols-2 gap-4"
+                    >
+                      <div className="col-span-2 border-b border-white/5 pb-3 mb-1 flex items-center justify-between">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-accent">Engineering Divisions</span>
+                        <Link href="/services" className="text-xs text-gray-400 hover:text-white flex items-center gap-1 font-medium">
+                          All Services <LayoutGrid className="h-3 w-3" />
+                        </Link>
+                      </div>
+
+                      {services.map((item) => (
+                        <Link
+                          key={item.slug}
+                          href={`/services/${item.slug}`}
+                          className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group"
+                        >
+                          <div className="h-8 w-8 rounded-lg bg-accent/15 flex items-center justify-center text-accent shrink-0 group-hover:scale-105 transition-transform">
+                            <Wrench className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-bold text-white group-hover:text-accent transition-colors">{item.title}</h4>
+                            <p className="text-xs text-gray-400 mt-1 leading-snug line-clamp-1">{item.description}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <Link
+                href="/projects"
+                className={cn(
+                  "px-4 py-2 text-sm font-semibold rounded-lg transition-all",
+                  isActive("/projects") ? "text-accent bg-white/5" : "text-gray-200 hover:text-accent hover:bg-white/5"
+                )}
+              >
+                Projects
+              </Link>
+              <Link
+                href="/clients"
+                className={cn(
+                  "px-4 py-2 text-sm font-semibold rounded-lg transition-all",
+                  isActive("/clients") ? "text-accent bg-white/5" : "text-gray-200 hover:text-accent hover:bg-white/5"
+                )}
+              >
+                Clients
+              </Link>
+              <Link
+                href="/contact"
+                className={cn(
+                  "px-4 py-2 text-sm font-semibold rounded-lg transition-all",
+                  isActive("/contact") ? "text-accent bg-white/5" : "text-gray-200 hover:text-accent hover:bg-white/5"
+                )}
+              >
+                Contact
+              </Link>
 
               <Link
                 href="/quote"
@@ -233,17 +242,12 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Mobile toggle */}
+            {/* Mobile Menu Button */}
             <div className="flex items-center gap-2 lg:hidden">
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={cn(
-                  "p-2 rounded-lg transition-colors",
-                  isTransparent
-                    ? "text-white hover:bg-white/10"
-                    : "text-primary hover:bg-muted"
-                )}
-                aria-label="Toggle navigation menu"
+                className="p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
+                aria-label="Toggle Navigation menu"
               >
                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
@@ -251,89 +255,51 @@ export default function Header() {
           </div>
         </nav>
 
-        {/* Mobile Menu */}
+        {/* Mobile Navigation Drawer */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25 }}
-              className={cn(
-                "lg:hidden border-t border-border/30 overflow-hidden shadow-xl",
-                isTransparent ? "bg-[#0B1323]/98 backdrop-blur-md" : "bg-white"
-              )}
+              className="lg:hidden border-t border-white/5 bg-[#0A1628] shadow-2xl overflow-hidden"
             >
               <div className="container-padding py-4 space-y-1">
-                {navLinks.map((link) => (
-                  <div key={link.href}>
-                    <Link
-                      href={link.href}
-                      onClick={() => setIsOpen(false)}
-                      className={cn(
-                        "block px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200",
-                        isActive(link.href)
-                          ? "text-accent bg-accent/10"
-                          : isTransparent
-                          ? "text-white hover:text-accent hover:bg-white/5"
-                          : "text-primary hover:text-accent hover:bg-muted"
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                    {link.children && (
-                      <div className="ml-4 space-y-0.5 pb-2 border-l-2 border-border/30 ml-6 pl-3">
-                        {link.children.map((child) => (
-                          <Link
-                            key={child.href}
-                            href={child.href}
-                            onClick={() => setIsOpen(false)}
-                            className={cn(
-                              "block px-3 py-2 text-sm rounded-lg transition-all duration-150",
-                              isTransparent ? "text-gray-400 hover:text-accent" : "text-muted-foreground hover:text-accent"
-                            )}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
+                {[
+                  { label: "Home", href: "/" },
+                  { label: "About", href: "/about" },
+                  { label: "Services", href: "/services" },
+                  { label: "Projects", href: "/projects" },
+                  { label: "Clients", href: "/clients" },
+                  { label: "Contact", href: "/contact" },
+                ].map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "block px-4 py-3 rounded-lg text-sm font-semibold transition-all",
+                      isActive(link.href) ? "text-accent bg-white/5" : "text-gray-300 hover:text-accent hover:bg-white/5"
                     )}
-                  </div>
+                  >
+                    {link.label}
+                  </Link>
                 ))}
-                <div className="pt-3 space-y-3 border-t border-border/30">
+
+                <div className="pt-4 space-y-3 border-t border-white/5">
                   <Link
                     href="/quote"
                     onClick={() => setIsOpen(false)}
-                    className="block text-center rounded-lg bg-accent text-primary px-5 py-3 font-button text-sm font-semibold shadow-sm transition-all duration-300 hover:bg-white"
+                    className="block text-center rounded-lg bg-accent text-primary px-5 py-3 font-button text-sm font-semibold shadow-md"
                   >
                     Request a Quote
                   </Link>
-                  <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-                    <a href="tel:+918883389766" className="flex items-center gap-1.5 hover:text-accent transition-colors">
-                      <Phone className="h-4 w-4 text-accent" /> Call Us
-                    </a>
-                    <a href="mailto:rdengineering1212@gmail.com" className="flex items-center gap-1.5 hover:text-accent transition-colors">
-                      <Mail className="h-4 w-4 text-accent" /> Email
-                    </a>
-                  </div>
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </header>
-      {/* Mobile Drawer Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/55 backdrop-blur-sm lg:hidden"
-            onClick={() => setIsOpen(false)}
-          />
-        )}
-      </AnimatePresence>
     </>
   );
 }

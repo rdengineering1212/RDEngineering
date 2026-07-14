@@ -127,7 +127,7 @@ export default function AboutPage() {
               transition={{ duration: 0.7, delay: 0.15 }}
               className="relative"
             >
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
                 <Image
                   src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=80"
                   alt="RD Engineering Workshop"

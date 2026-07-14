@@ -86,29 +86,16 @@ model Project {
   title       String
   slug        String   @unique
   description String
-  content     String?
   category    String
   clientName  String?
   location    String?
-  date        DateTime?
   imageUrl    String?
   images      String[]
   featured    Boolean  @default(false)
-  status      String   @default("completed")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model Gallery {
-  id          String   @id @default(cuid())
-  title       String?
-  description String?
-  imageUrl    String
-  category    String
-  featured    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
 
 model Service {
   id          String   @id @default(cuid())
