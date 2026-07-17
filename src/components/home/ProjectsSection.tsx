@@ -13,7 +13,7 @@ export default function ProjectsSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/projects")
+    fetch("/api/projects", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

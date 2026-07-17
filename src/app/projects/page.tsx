@@ -21,7 +21,7 @@ export default function ProjectsPage() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.08 });
 
   useEffect(() => {
-    fetch("/api/projects")
+    fetch("/api/projects", { cache: "no-store" })
       .then((res) => {
         if (!res.ok) throw new Error("API unavailable");
         return res.json();

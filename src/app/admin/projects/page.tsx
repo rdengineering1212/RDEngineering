@@ -66,7 +66,7 @@ export default function AdminProjectsPage() {
 
   const fetchProjects = () => {
     setLoading(true);
-    fetch("/api/admin/projects")
+    fetch("/api/admin/projects", { cache: "no-store" })
       .then((res) => {
         if (!res.ok) throw new Error();
         return res.json();
