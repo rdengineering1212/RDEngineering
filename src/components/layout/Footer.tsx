@@ -60,7 +60,7 @@ export default async function Footer() {
                   className="object-contain"
                 />
               </div>
-              <div>
+              <div className="notranslate" translate="no">
                 <h3 className="text-lg font-heading font-bold text-white">{settings.companyName}</h3>
                 <p className="text-xs text-accent tracking-wider uppercase">Industrial Engineering</p>
               </div>

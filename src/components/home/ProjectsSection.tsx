@@ -7,24 +7,27 @@ import Image from "next/image";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 
-export default function ProjectsSection() {
+export default function ProjectsSection({ initialProjects = [] }: { initialProjects?: any[] }) {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
-  const [projectsList, setProjectsList] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [projectsList, setProjectsList] = useState<any[]>(initialProjects);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch("/api/projects", { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          // Filter to featured or top 4
-          const featured = data.filter((p: any) => p.featured);
-          setProjectsList(featured.length > 0 ? featured.slice(0, 4) : data.slice(0, 4));
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    // Only fetch if initialProjects is empty (fallback mechanism)
+    if (initialProjects.length === 0) {
+      setLoading(true);
+      fetch("/api/projects", { cache: "no-store" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            const featured = data.filter((p: any) => p.featured);
+            setProjectsList(featured.length > 0 ? featured.slice(0, 4) : data.slice(0, 4));
+          }
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }
+  }, [initialProjects]);
 
   return (
     <section className="py-24 lg:py-32 bg-background">
@@ -95,7 +98,7 @@ export default function ProjectsSection() {
                     <h3 className="text-xl md:text-2xl font-heading font-bold text-white mb-2 line-clamp-1">
                       {project.title}
                     </h3>
-                    <p className="text-sm text-gray-300 line-clamp-1">{project.clientName || "RD Engineering Partner"}</p>
+                    <p className="text-sm text-gray-300 line-clamp-1"><span className="notranslate" translate="no">{project.clientName || "RD Engineering Partner"}</span></p>
                   </div>
                   <div className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <ExternalLink className="h-5 w-5 text-white" />

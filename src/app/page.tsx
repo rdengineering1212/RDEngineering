@@ -9,14 +9,24 @@ import TestimonialsSection from "@/components/home/TestimonialsSection";
 import FaqSection from "@/components/home/FaqSection";
 import BlogSection from "@/components/home/BlogSection";
 import ContactCTASection from "@/components/home/ContactCTASection";
+import { prisma } from "@/lib/prisma";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function HomePage() {
+  const projects = await prisma.project.findMany({
+    where: { featured: true },
+    orderBy: { createdAt: "desc" },
+    take: 4,
+  });
+
   return (
     <>
       <Hero />
       <StatsSection />
       <ServicesSection />
-      <ProjectsSection />
+      <ProjectsSection initialProjects={projects} />
       <TimelineSection />
       <WhyChooseUsSection />
       <ClientsSection />

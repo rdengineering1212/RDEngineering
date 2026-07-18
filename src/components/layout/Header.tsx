@@ -124,7 +124,7 @@ export default function Header() {
                   priority
                 />
               </div>
-              <div>
+              <div className="notranslate" translate="no">
                 <p className="text-base font-heading font-black text-white leading-tight tracking-tight uppercase">
                   {settings.companyName}
                 </p>

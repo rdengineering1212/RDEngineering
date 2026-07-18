@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import ScrollProgressBar from "@/components/ScrollProgressBar";
 import BackToTop from "@/components/BackToTop";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import GoogleTranslate from "@/components/layout/GoogleTranslate";
 import { Toaster } from "react-hot-toast";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -109,6 +110,7 @@ export default function RootLayout({
           <main className="min-h-screen">{children}</main>
           <Footer />
           <BackToTop />
+          <GoogleTranslate />
           <FloatingWhatsApp />
           <Toaster
             position="top-right"

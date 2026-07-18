@@ -80,7 +80,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-8"
           >
             <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-            <span className="text-accent text-[10px] font-bold tracking-widest uppercase">
+            <span className="text-accent text-[10px] font-bold tracking-widest uppercase notranslate" translate="no">
               INDUSTRIAL ENGINEERING SINCE 2010
             </span>
           </motion.div>

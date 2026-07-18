@@ -82,7 +82,7 @@ export default function ClientsPage() {
                 <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-accent/15 to-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                   <span className="text-2xl font-heading font-bold text-accent">{client.name.charAt(0)}</span>
                 </div>
-                <h3 className="text-lg font-heading font-bold text-primary mb-2 group-hover:text-accent transition-colors duration-300">{client.name}</h3>
+                <h3 className="text-lg font-heading font-bold text-primary mb-2 group-hover:text-accent transition-colors duration-300"><span className="notranslate" translate="no">{client.name}</span></h3>
                 <span className="inline-block px-3 py-1 rounded-full bg-accent/20 text-accent text-xs font-semibold mb-2">{client.industry}</span>
                 <p className="text-sm text-muted-foreground">{client.description}</p>
               </motion.div>

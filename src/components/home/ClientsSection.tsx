@@ -55,7 +55,7 @@ export default function ClientsSection() {
                 </span>
               </div>
               <h3 className="text-sm font-semibold text-primary mb-1 group-hover:text-accent transition-colors duration-300">
-                {client.name}
+                <span className="notranslate" translate="no">{client.name}</span>
               </h3>
               <p className="text-xs text-muted-foreground">{client.industry}</p>
             </motion.div>
