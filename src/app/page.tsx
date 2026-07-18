@@ -15,11 +15,16 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const projects = await prisma.project.findMany({
-    where: { featured: true },
-    orderBy: { createdAt: "desc" },
-    take: 4,
-  });
+  let projects: any[] = [];
+  try {
+    projects = await prisma.project.findMany({
+      where: { featured: true },
+      orderBy: { createdAt: "desc" },
+      take: 4,
+    });
+  } catch (error) {
+    console.error("Failed to fetch featured projects:", error);
+  }
 
   return (
     <>

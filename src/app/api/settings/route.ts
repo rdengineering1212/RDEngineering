@@ -6,6 +6,7 @@ export async function GET() {
     const settings = await getSettings();
     return NextResponse.json(settings);
   } catch (error) {
-    return NextResponse.json({}, { status: 500 });
+    console.error("Prisma setting fetch failed:", error);
+    return NextResponse.json({ success: false, message: "Database query failed" }, { status: 500 });
   }
 }

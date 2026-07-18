@@ -8,6 +8,7 @@ export async function GET() {
     });
     return NextResponse.json(services);
   } catch (error) {
-    return NextResponse.json([], { status: 500 });
+    console.error("Failed to fetch services:", error);
+    return NextResponse.json({ success: false, message: "Database query failed" }, { status: 500 });
   }
 }
